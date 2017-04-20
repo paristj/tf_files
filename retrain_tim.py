@@ -957,14 +957,18 @@ def main(_):
     builder = saved_model_builder.SavedModelBuilder(export_path)
     builder.add_meta_graph_and_variables(
           sess  , [tag_constants.SERVING])
-    #       signature_def_map={
-    #            'predict_images':
-    #                prediction_signature,
-    #            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
-    #                classification_signature,
-    #       },
+#          signature_def_map={
+#               'predict_images':
+#                   prediction_signature,
+#               signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
+#                   classification_signature
+#          })
     #       legacy_init_op=legacy_init_op)
     builder.save()
+
+    saver = tf.train.Saver()  #Initialize a saver. You should have created a graph with some variables
+    saver.save(sess, 'model_saver.ckpt') # create checkpoint
+    saver.export_meta_graph(filename='model_saver.meta') # create meta graphs
 
 
 if __name__ == '__main__':
