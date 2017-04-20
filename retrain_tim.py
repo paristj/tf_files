@@ -95,6 +95,7 @@ from tensorflow.python.framework import tensor_shape
 from tensorflow.python.platform import gfile
 from tensorflow.python.util import compat
 from tensorflow.python.saved_model import builder as saved_model_builder
+from tensorflow.python.saved_model import tag_constants
 
 
 FLAGS = None
@@ -955,8 +956,7 @@ def main(_):
     # print('Exporting trained model to', export_path)
     builder = saved_model_builder.SavedModelBuilder(export_path)
     builder.add_meta_graph_and_variables(
-          sess)
-    # , [tag_constants.SERVING],
+          sess  , [tag_constants.SERVING])
     #       signature_def_map={
     #            'predict_images':
     #                prediction_signature,
