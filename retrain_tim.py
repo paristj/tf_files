@@ -94,6 +94,8 @@ from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.platform import gfile
 from tensorflow.python.util import compat
+from tensorflow.python.saved_model import builder as saved_model_builder
+
 
 FLAGS = None
 
@@ -943,6 +945,25 @@ def main(_):
       f.write(output_graph_def.SerializeToString())
     with gfile.FastGFile(FLAGS.output_labels, 'w') as f:
       f.write('\n'.join(image_lists.keys()) + '\n')
+
+    #custom  export for tf serving
+    export_path_base = sys.argv[-1]
+    export_path = os.path.join(
+          compat.as_bytes(export_path_base),
+          compat.as_bytes(str(FLAGS.model_version)))
+    print 'Exporting trained model to', export_path
+    builder = saved_model_builder.SavedModelBuilder(export_path)
+    builder.add_meta_graph_and_variables(
+          sess)
+    # , [tag_constants.SERVING],
+    #       signature_def_map={
+    #            'predict_images':
+    #                prediction_signature,
+    #            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
+    #                classification_signature,
+    #       },
+    #       legacy_init_op=legacy_init_op)
+    builder.save()
 
 
 if __name__ == '__main__':
