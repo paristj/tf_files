@@ -967,9 +967,9 @@ def main(_):
     builder.save()
 
     saver = tf.train.Saver()  #Initialize a saver. You should have created a graph with some variables
-    saver.save(sess, 'model_saver.ckpt') # create checkpoint
-    saver.export_meta_graph(filename='model_saver.meta') # create meta graphs
-
+    saver.save(sess, '/tf_files/model_saver.ckpt') # create checkpoint
+    saver.export_meta_graph(filename='tf_files/model_saver.meta') # create meta graphs
+    print('saved model v2 to tf_files/model_saver.meta')
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
