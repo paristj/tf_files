@@ -947,29 +947,43 @@ def main(_):
     with gfile.FastGFile(FLAGS.output_labels, 'w') as f:
       f.write('\n'.join(image_lists.keys()) + '\n')
 
-    #custom  export for tf serving
-    export_path_base = sys.argv[-1]
-    export_path = os.path.join(
-          compat.as_bytes(export_path_base),'model_output')
-          # ,
-          # compat.as_bytes(str(FLAGS.model_version)))
-    print('Exporting trained model to', export_path)
-    builder = saved_model_builder.SavedModelBuilder(export_path)
-    builder.add_meta_graph_and_variables(
-          sess  , [tag_constants.SERVING])
-#          signature_def_map={
-#               'predict_images':
-#                   prediction_signature,
-#               signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
-#                   classification_signature
-#          })
-    #       legacy_init_op=legacy_init_op)
-    builder.save()
+##    #custom  export for tf serving
+##    export_path_base = sys.argv[-1]
+##    export_path = os.path.join(
+##          compat.as_bytes(export_path_base),'model_output')
+##          # ,
+##          # compat.as_bytes(str(FLAGS.model_version)))
+##    print('Exporting trained model to', export_path)
+##    builder = saved_model_builder.SavedModelBuilder(export_path)
+##    builder.add_meta_graph_and_variables(
+##          sess  , [tag_constants.SERVING])
+###          signature_def_map={
+###               'predict_images':
+###                   prediction_signature,
+###               signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
+###                   classification_signature
+###          })
+##    #       legacy_init_op=legacy_init_op)
+##    builder.save()
+##
+##    saver = tf.train.Saver()  #Initialize a saver. You should have created a graph with some variables
+##    saver.save(sess, '/tf_files/model_saver.ckpt') # create checkpoint
+##    saver.export_meta_graph(filename='tf_files/model_saver.meta') # create meta graphs
+##    print('saved model v2 to tf_files/model_saver.meta')
+##
 
-    saver = tf.train.Saver()  #Initialize a saver. You should have created a graph with some variables
-    saver.save(sess, '/tf_files/model_saver.ckpt') # create checkpoint
-    saver.export_meta_graph(filename='tf_files/model_saver.meta') # create meta graphs
-    print('saved model v2 to tf_files/model_saver.meta')
+
+    #attempt 3
+    export_path = os.path.join(sys.argv[-1],'model3_output')
+    print 'Exporting trained model to', export_path
+    saver = tf.train.Saver(sharded=True)
+    model_exporter = exporter.Exporter(saver)
+    signature = exporter.classification_signature(input_tensor=jpeg_data_tensor, scores_tensor=final_tensor)
+    model_exporter.init(sess.graph.as_graph_def(), default_graph_signature=signature)
+    model_exporter.export(export_path, tf.constant(FLAGS.export_version), sess)
+
+    #input_tensor=jpeg_data_tensor
+    #scores_tensor=final_tensor
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
